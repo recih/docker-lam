@@ -1,7 +1,7 @@
 FROM php:7.1-apache
 MAINTAINER Computer Science House
 
-ENV LAM_VERSION=6.0.1
+ENV LAM_VERSION=lam_6_3
 ENV LAM_USER=lam
 ENV LAM_DIR=/var/www/html
 
@@ -20,6 +20,7 @@ RUN BUILD_DEPENDENCIES="libmagickwand-dev libfreetype6-dev libjpeg62-turbo-dev l
       && pecl install imagick-3.4.3 \
       && docker-php-ext-enable imagick \
       && sed -ie "s/\(\*:80\)/\180/g" /etc/apache2/sites-available/000-default.conf \
+      && sed -i "s_DocumentRoot /var/www/html_DocumentRoot /var/www/html/lam_" /etc/apache2/sites-available/000-default.conf \
       && sed -ie "s/\(Listen 80\)/\180/g" /etc/apache2/ports.conf \
       && mkdir -p /var/lock/apache2 /var/run/apache2 \
       && chmod og+rwx /var/lock/apache2 /var/run/apache2
@@ -28,15 +29,15 @@ RUN BUILD_DEPENDENCIES="libmagickwand-dev libfreetype6-dev libjpeg62-turbo-dev l
 RUN set -ex \
       && useradd -M -d ${LAM_DIR} ${LAM_USER} \
       && cd /tmp \
-      && curl -o lam-${LAM_VERSION}.tar.bz2 -fsSL "https://sourceforge.net/projects/lam/files/LAM/${LAM_VERSION}/ldap-account-manager-${LAM_VERSION}.tar.bz2/download" \
-      && tar -xjf lam-${LAM_VERSION}.tar.bz2 \
-      && cp -R ldap-account-manager-${LAM_VERSION}/* ${LAM_DIR} \
+      && curl -o lam-${LAM_VERSION}.tar.gz -fsSL "https://github.com/LDAPAccountManager/lam/archive/${LAM_VERSION}.tar.gz" \
+      && tar -xzf lam-${LAM_VERSION}.tar.gz \
+      && cp -R lam-${LAM_VERSION}/* ${LAM_DIR} \
       && rm -rf /tmp/* \
-      && cp ${LAM_DIR}/config/config.cfg.sample ${LAM_DIR}/config/config.cfg \
+      && cp ${LAM_DIR}/lam/config/config.cfg.sample ${LAM_DIR}/lam/config/config.cfg \
       && chown -R ${LAM_USER}:${LAM_USER} ${LAM_DIR} \
-      && chmod og+rwx ${LAM_DIR}/sess ${LAM_DIR}/tmp \
-      && chmod 777 ${LAM_DIR}/config \
-      && chmod 666 ${LAM_DIR}/config/config.cfg
+      && chmod og+rwx ${LAM_DIR}/lam/sess ${LAM_DIR}/lam/tmp \
+      && chmod 777 ${LAM_DIR}/lam/config \
+      && chmod 666 ${LAM_DIR}/lam/config/config.cfg
 
 # Final steps
 EXPOSE 8080
