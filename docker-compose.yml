@@ -1,10 +1,10 @@
 version: '3'
-
 services:
   lam:
-    image: computersciencehouse/ldap-account-manager
+    image: recih/ldap-account-manager
     build: .
     restart: always
     ports:
       - 8080:8080
-
+#   volumes:
+#     - '/srv/lam:/var/www/html/lam/config'
